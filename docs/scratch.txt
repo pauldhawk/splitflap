@@ -1,0 +1,480 @@
+
+  Using VS Code:
+  1. Open firmware/test/phase1_test_project folder in VS Code
+  2. Click PlatformIO icon (left sidebar)
+  3. Expand "phase1_test" environment
+  4. Click "Build"
+  5. Watch for "SUCCESS" message
+
+  Using Command Line:
+  cd firmware/test/phase1_test_project
+  pio run
+
+  Expected output:
+  Building .pio/build/phase1_test/firmware.bin
+  ...
+  RAM:   [=         ]  13.2% (used 43204 bytes from 327680 bytes)
+  Flash: [==        ]  20.1% (used 263025 bytes from 1310720 bytes)
+  ======================== [SUCCESS] Took 12.34 seconds ========================
+
+  If build fails:
+  - Check that src/main.cpp exists
+  - Verify platformio.ini is correct
+  - Try: pio run --target clean then pio run again
+
+  ---
+  Step 5: Connect ESP32
+
+  1. Connect ESP32 to computer via USB
+  2. Identify COM port:
+
+  On Mac/Linux:
+  ls /dev/tty.*
+  Look for: /dev/tty.usbserial-* or /dev/tty.SLAB_USBtoUART
+
+  On Windows:
+  - Open Device Manager
+  - Look under "Ports (COM & LPT)"
+  - Note COM port number (e.g., COM3)
+
+  If port doesn't appear:
+  - Install CP210x driver (Google "CP210x driver" + your OS)
+  - Or CH340 driver (depending on ESP32 board)
+  - Unplug/replug USB cable
+
+  ---
+  Step 6: Upload Firmware
+
+  ⚠️ BEFORE UPLOAD:
+  - 12V power supply UNPLUGGED (motor won't move yet, but safer)
+  - ESP32 connected via USB
+  - Wiring verified
+
+  Using VS Code:
+  1. PlatformIO icon → "phase1_test" → "Upload"
+  2. Watch for "SUCCESS" message
+
+  Using Command Line:
+  pio run --target upload
+
+  Expected output:
+  Uploading .pio/build/phase1_test/firmware.bin
+  ...
+  Wrote 263040 bytes (134789 compressed) at 0x00010000 in 3.2 seconds
+  Hash of data verified.
+
+  Leaving...
+  Hard resetting via RTS pin...
+  ======================== [SUCCESS] Took 8.23 seconds ========================
+
+  If upload fails:
+  - Try holding BOOT button on ESP32 during upload
+  - Check USB cable (must support data, not just power)
+  - Verify correct COM port selected
+  - Try different USB port
+
+  ---
+  Step 7: Open Serial Monitor
+
+  Using VS Code:
+  1. PlatformIO icon → "phase1_test" → "Monitor"
+
+  Using Command Line:
+  pio device monitor
+
+  Expected serial output:
+  ===== Phase 1: NEMA 17 Motor Test =====
+  Initializing...
+  Pin configuration complete
+
+  Configuration:
+    STEP pin: GPIO 25
+    DIR pin:  GPIO 26
+    EN pin:   GPIO 27
+    Steps per revolution: 3200
+    Step delay: 1000 us
+    Speed: ~18.8 RPM
+
+  Enabling motor...
+  Motor enabled!
+
+  Starting movement in 3 seconds...
+  GO!
+
+  [3042] Rotating CLOCKWISE 200 steps...
+      Total steps: 200
+  [3256] Pause 1000 ms
+  [4257] Rotating COUNTER-CLOCKWISE 200 steps...
+      Total steps: 400
+  [4471] Pause 1000 ms
+  --- Cycle complete ---
+
+  [5472] Rotating CLOCKWISE 200 steps...
+  ...
+
+  If serial shows nothing:
+  - Check baud rate is 115200
+  - Press RESET button on ESP32
+  - Verify USB cable connection
+
+  ---
+  ⚡ Step 8: First Motor Movement Test
+
+  Now we'll power the motor and verify it moves:
+
+  Safety Pre-Check:
+
+  - Serial monitor shows correct initialization
+  - Wiring verified (photos match actual setup)
+  - Motor is not obstructed (can spin freely)
+  - Keep hand near 12V power plug (to unplug if issues)
+
+  Power On Procedure:
+
+  1. Watch serial monitor - should show countdown "Starting movement in 3 seconds..."
+  2. Plug in 12V power supply (while watching motor)
+  3. Immediately observe motor:
+    - Motor should "lock" (feel stiff)
+    - After 3 seconds, motor should start rotating
+    - Movement should be smooth and slow
+    - Should rotate ~200 steps, pause, rotate back
+
+  Expected Behavior: ✅
+
+  - Motor rotates smoothly in one direction
+  - Pauses 1 second (locked position)
+  - Rotates smoothly in opposite direction
+  - Returns to approximately starting position
+  - Repeats cycle every ~2.4 seconds
+  - Serial monitor shows step counts
+  - Motor feels warm after 1-2 minutes (normal)
+  - TMC2209 heatsink warm but not too hot to touch
+
+  Success Criteria:
+
+  - Motor rotates visibly
+  - Direction changes correctly
+  - Movement is smooth (no stuttering)
+  - Returns to approximately same position each cycle
+  - Serial output matches movement
+  - No burning smell
+  - No overheating
+
+  🎉 IF ALL CHECKS PASS: Phase 1 is COMPLETE!
+
+  ---
+  🔧 Troubleshooting
+
+  Issue: Motor doesn't move at all
+
+  Symptoms: Motor feels stiff (locked) but doesn't rotate
+
+  Checks:
+  1. Verify 12V power:
+    - Use multimeter on TMC2209 VM+ and GND
+    - Should read ~12V DC
+  2. Check EN pin:
+    - Serial should say "Motor enabled!"
+    - EN pin should be LOW (0V)
+    - Measure EN pin with multimeter: should be 0V
+  3. Verify STEP signal:
+    - Serial shows "Rotating CLOCKWISE..."
+    - Measure GPIO 25 with multimeter set to voltage
+    - Should flicker between 0V and 3.3V
+  4. Check common ground:
+    - Verify ESP32 GND connects to TMC2209 GND
+    - Measure resistance: should be ~0Ω
+  5. Test with different speed:
+  Edit src/main.cpp, change:
+  #define STEP_DELAY_US  1000   // Try 2000 (slower) or 500 (faster)
+  5. Rebuild and upload
+
+  ---
+  Issue: Motor vibrates/buzzes but doesn't rotate
+
+  Symptoms: Motor shakes or buzzes in place, doesn't turn
+
+  Cause: Motor coil wires are incorrect
+
+  Fix:
+  1. Unplug 12V power
+  2. Swap one coil pair on TMC2209:
+    - Swap A1 ↔ A2, OR
+    - Swap B1 ↔ B2
+  3. Plug in 12V power and test again
+
+  If still vibrating:
+  - Verify you correctly identified coil pairs (re-measure with multimeter)
+  - Try swapping the other coil pair
+
+  ---
+  Issue: Motor rotates wrong direction
+
+  Symptoms: Motor rotates, but CW when it should be CCW (or vice versa)
+
+  Fix Option 1 - Swap direction in code:
+  Edit src/main.cpp:
+  void set_direction(bool clockwise) {
+      digitalWrite(DIR_PIN, clockwise ? LOW : HIGH);  // Reversed!
+      delayMicroseconds(5);
+  }
+
+  Fix Option 2 - Swap one coil physically:
+  - Swap A1 ↔ A2, OR
+  - Swap B1 ↔ B2
+
+  ---
+  Issue: Motor rotates but doesn't return to start position
+
+  Symptoms: Motor drifts, doesn't return to same position each cycle
+
+  Likely causes:
+  - Steps are being missed (too fast)
+  - Motor skipping steps under no load (unusual)
+
+  Fix:
+  1. Slow down movement:
+  #define STEP_DELAY_US  2000   // Slower
+  2. Add load to motor:
+    - Gently hold motor shaft with fingers (light resistance)
+    - Should still rotate smoothly
+  3. Check for mechanical binding:
+    - Motor shaft should spin freely by hand when powered off
+
+  ---
+  Issue: Motor gets very hot
+
+  Symptoms: Motor too hot to touch after 1-2 minutes
+
+  Causes:
+  - Current limit too high on TMC2209
+  - Motor coils shorted
+
+  Immediate action:
+  - Unplug 12V power
+  - Let motor cool
+
+  Fix:
+  - This is normal for TMC2209 at full current
+  - We'll adjust current limit in Phase 2 (UART configuration)
+  - For now: Motor warm/hot is OK, just don't run continuously
+
+  ---
+  Issue: TMC2209 gets very hot
+
+  Symptoms: Heatsink too hot to touch (<1 second)
+
+  Immediate action:
+  - Unplug 12V power
+
+  Checks:
+  1. Verify heatsink is installed on TMC2209 chip
+  2. Check for short between VM+ and GND (should be >100Ω)
+  3. Verify motor coils are correct (measure resistance)
+
+  Temporary fix:
+  - Add cooling fan pointed at TMC2209
+  - Reduce run time (30 seconds on, 30 seconds off)
+
+  Permanent fix:
+  - Phase 2 will configure current limit via UART
+
+  ---
+  Issue: Motor moves erratically
+
+  Symptoms: Sometimes moves, sometimes doesn't, or skips randomly
+
+  Causes:
+  - Loose wire connections
+  - Bad common ground
+  - Noise on signal lines
+
+  Fix:
+  1. Check all connections:
+    - Tighten screw terminals
+    - Verify jumper wires are fully inserted
+    - Wiggle wires while running - should not affect movement
+  2. Shorten jumper wires:
+    - Use shortest possible wires for STEP/DIR/EN
+    - Route signal wires away from power wires
+  3. Add bypass capacitor (advanced):
+    - 100nF ceramic cap between ESP32 3.3V and GND
+
+  ---
+  Issue: Serial monitor shows garbled text
+
+  Cause: Wrong baud rate
+
+  Fix:
+  - Set serial monitor to 115200 baud
+  - In PlatformIO: Click gear icon in monitor, select 115200
+
+  ---
+  Issue: ESP32 keeps resetting
+
+  Symptoms: Serial output shows boot messages repeatedly
+
+  Causes:
+  - Power supply issue
+  - Brownout detection triggered
+  - Bad USB cable
+
+  Fix:
+  1. Try different USB port (use USB port on computer, not hub)
+  2. Try different USB cable
+  3. Disconnect 12V power and test ESP32 alone
+
+  ---
+  📊 Performance Testing
+
+  Once motor is running reliably, try these tests:
+
+  Test 1: Speed Variation
+
+  Edit STEP_DELAY_US and observe:
+
+  | STEP_DELAY_US | Speed (RPM) | Behavior                         |
+  |---------------|-------------|----------------------------------|
+  | 2000          | ~9.4        | Very slow, easy to see each step |
+  | 1000          | ~18.8       | Slow, smooth (default)           |
+  | 500           | ~37.5       | Medium speed                     |
+  | 200           | ~93.8       | Fast                             |
+  | 100           | ~187.5      | Very fast                        |
+
+  Note: At <500us, motor may vibrate or stall (no load). With split-flap load, slower speeds will be needed.
+
+  ---
+  Test 2: Full Revolution
+
+  Change test parameters to complete a full rotation:
+
+  #define TEST_STEPS  3200   // Full revolution (200 steps × 16 microsteps)
+  #define PAUSE_MS    2000   // 2 second pause
+
+  Expected:
+  - Motor makes exactly 1 full rotation
+  - Returns to exact starting position
+  - Takes ~3.2 seconds per rotation (at 1000us delay)
+
+  ---
+  Test 3: Direction Control
+
+  Verify both directions work:
+
+  // In loop(), test continuous rotation:
+  move_steps(100, true);   // CW
+  delay(500);
+  move_steps(100, true);   // CW again (should continue same direction)
+  delay(500);
+  move_steps(100, false);  // CCW
+  delay(500);
+  move_steps(100, false);  // CCW again
+
+  ---
+  Test 4: Enable/Disable
+
+  Test EN pin control:
+
+  enable_motor();
+  move_steps(200, true);
+  disable_motor();   // Motor should release (can be turned by hand)
+  delay(2000);
+  enable_motor();    // Motor locks again
+  move_steps(200, false);
+
+  Expected:
+  - When disabled: motor shaft spins freely by hand
+  - When enabled: motor shaft feels stiff (locked)
+
+  ---
+  ✅ Phase 1 Complete Checklist
+
+  Hardware:
+
+  - All wiring completed per diagram
+  - Power-on tests passed
+  - No overheating or burning smell
+
+  Software:
+
+  - PlatformIO installed
+  - Test firmware compiled successfully
+  - Firmware uploaded to ESP32
+  - Serial monitor shows correct output
+
+  Motor Function:
+
+  - Motor rotates smoothly in both directions
+  - Direction changes correctly
+  - Returns to approximately same position each cycle
+  - Speed is consistent
+  - No stuttering or vibration
+
+  Performance:
+
+  - Tested multiple speeds (fast and slow)
+  - Tested full revolution (returns to start)
+  - Enable/disable works correctly
+  - Motor and driver temperature acceptable
+
+  Documentation:
+
+  - Photos of running setup
+  - Serial output captured
+  - Any modifications documented
+
+  ---
+  📸 Success Documentation
+
+  Take these for your records:
+
+  1. Video of motor running (30 seconds)
+    - Shows smooth rotation
+    - Direction changes visible
+    - Returns to start position
+  2. Screenshot of serial output
+    - Shows clean initialization
+    - Step counts incrementing
+    - No error messages
+  3. Photos of setup
+    - Overall view of working system
+    - Close-up of motor rotating
+
+  ---
+  🎯 Next Steps
+
+  Phase 1 is complete! You've verified:
+  - ✅ Basic STEP/DIR control works
+  - ✅ TMC2209 driver responds correctly
+  - ✅ Motor rotates smoothly in both directions
+  - ✅ ESP32 can control motor timing
+
+  Ready for Phase 2:
+  - Configure TMC2209 via UART
+  - Set current limit (prevent overheating)
+  - Enable StealthChop (silent operation)
+  - Fine-tune microstepping
+
+  Proceed to: docs/Firmware_Implementation_Path.md - Phase 2
+
+  ---
+  💬 Report Results
+
+  After completing Phase 1, report back:
+
+  If Successful: ✅
+  - "Phase 1 complete!"
+  - "Motor rotates smoothly in both directions"
+  - Attach video/photos
+
+  If Issues: ❌
+  - Describe specific problem
+  - What troubleshooting steps tried
+  - Serial output
+  - Photos/video of issue
+
+  ---
+  Document Status: Complete
+  Phase: 1 of 4
+  Estimated Time: 1-2 hours (first time)
+  Success Rate: ~95% (if wiring correct)

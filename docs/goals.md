@@ -54,3 +54,10 @@ I still have a bunch of base questions. This update needs:
   - 🤔 Edge Cases: Mixed systems? Upgrading firmware? Rollback?
 
   Go ahead - ask your base questions and I'll explain everything in detail!
+
+
+
+  pleaser look at hte current cad files. thinking about:
+  1. should we move the motor to being the drum (these motors with is veriable so it could simplify things or just make it work with the motor instide.
+  2. other deisgn changes that will be needed.
+  3. is 3d printing the base way to build the unit or some other method 
