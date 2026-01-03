@@ -5,7 +5,7 @@
 
 include <BOSL2/std.scad>
 include <../modules/constants.scad>
-include <../vitamins/nema17.scad>
+// include <../vitamins/nema17.scad>
 include <../vitamins/fasteners.scad>
 
 // Motor mount plate

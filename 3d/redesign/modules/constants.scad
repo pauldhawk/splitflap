@@ -23,13 +23,12 @@ num_flaps = 50;
 drum_diameter = 127;          // mm 
 flap_pitch_actual = drum_diameter / num_flaps;  // ~7.98mm per flap
 drum_width = material_thickness;  // 54mm (flap width + clearance)
-drum_inner_diameter = drum_diameter - 50;    // mm (wall thickness for strength)
+drum_inner_diameter = drum_diameter - 35;    // mm (wall thickness for strength)
 
 // Drum spacers (connect left/right drum)
 drum_spacer_count = 4;
-drum_spacer_diameter = 10;    // mm
-
-// ============================================
+drum_spacer_diameter = 7;    // mm
+drum_spacer_height = 40;      // mm (height of spacer)
 // MOTOR (NEMA 17)
 // ============================================
 nema17_size = 42.3;           // mm (body width)

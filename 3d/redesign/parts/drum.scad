@@ -5,8 +5,8 @@
 
 include <BOSL2/std.scad>
 include <../modules/constants.scad>
-include <../vitamins/sensors.scad>
-include <../vitamins/gt2_pulley.scad>
+// include <../vitamins/sensors.scad>
+// include <../vitamins/gt2_pulley.scad>
 
 // Flap slots (reusable for both drums)
 // Creates holes around circumference for flap pins
@@ -58,8 +58,8 @@ module drum_spacer_holes() {
     for (i = [0:drum_spacer_count-1]) {
         angle = i * 360 / drum_spacer_count;
         rotate([0, 0, angle])
-            translate([drum_inner_diameter/2, 0, 0])
-                rotate([0, 90, 0])
+            translate([drum_inner_diameter/1.75, 0, 0])
+                rotate([0, 0, 0])
                     cyl(d=screw_clearance_dia,
                         h=20,  // Deep enough to go through drum wall
                         anchor=CENTER);
@@ -134,7 +134,7 @@ module drum_spacer() {
     color("gray") {
         difference() {
             cyl(d=drum_spacer_diameter,
-                h=drum_width - 10,  // TODO: Calculate proper length
+                h=drum_spacer_height,
                 anchor=CENTER);
 
             // Heat-set insert holes at both ends
@@ -145,25 +145,26 @@ module drum_spacer() {
 
 // Full drum assembly
 module drum_assembly() {
+    drum_z = drum_spacer_height / 2;
     // Left drum with pulley
-    left(drum_width/2 + 5)
+    translate([0, 0, drum_z])
         drum_left();
 
     // Right drum with magnet
-    right(drum_width/2 + 5)
+    translate([0, 0, -drum_z])
         drum_right();
 
     // Spacers (4 positions around drum)
     for (i = [0:drum_spacer_count-1]) {
         angle = i * 360 / drum_spacer_count;
         rotate([0, 0, angle])
-            translate([drum_inner_diameter/2, 0, 0])
-                rotate([0, 90, 0])
+            translate([drum_diameter/2 - 10, 0, 0])
+                rotate([0, 0, 0])
                     drum_spacer();
     }
 }
 
 // Example/test render
 if ($preview) {
-    drum_left();
+    drum_assembly();
 }
