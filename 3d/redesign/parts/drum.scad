@@ -52,6 +52,20 @@ module drum_spokes() {
     }
 }
 
+// Spacer mounting holes (reusable for both drums)
+// Clearance holes for M3 screws to attach spacers
+module drum_spacer_holes() {
+    for (i = [0:drum_spacer_count-1]) {
+        angle = i * 360 / drum_spacer_count;
+        rotate([0, 0, angle])
+            translate([drum_inner_diameter/2, 0, 0])
+                rotate([0, 90, 0])
+                    cyl(d=screw_clearance_dia,
+                        h=20,  // Deep enough to go through drum wall
+                        anchor=CENTER);
+    }
+}
+
 // Left drum (connects to belt pulley)
 module drum_left() {
     color("lightblue") {
@@ -74,7 +88,8 @@ module drum_left() {
             // Flap slots (50 positions around circumference, 3mm from outer edge)
             drum_flap_slots();
 
-            // TODO: Add spacer mounting holes
+            // Spacer mounting holes (4 positions for M3 screws)
+            drum_spacer_holes();
         }
 
         // Pulley mounting interface
@@ -104,7 +119,8 @@ module drum_right() {
             // Flap slots (50 positions around circumference, 3mm from outer edge)
             drum_flap_slots();
 
-            // TODO: Add spacer mounting holes
+            // Spacer mounting holes (4 positions for M3 screws)
+            drum_spacer_holes();
         }
 
         // Magnet mounting position
