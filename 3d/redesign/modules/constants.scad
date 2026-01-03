@@ -3,7 +3,7 @@
 // ============================================
 // All dimensional constants for parametric design
 // Using NEMA 17 motor + GT2 belt drive system
-
+material_thickness = 3.0;      // mm (typical 3D print thickness)
 // ============================================
 // FLAP DIMENSIONS (from current design)
 // ============================================
@@ -11,15 +11,18 @@ flap_width = 50;              // mm (left-right dimension of flap card)
 flap_height = 70;             // mm (vertical dimension of flap card)
 flap_thickness = 0.3;         // mm (cardstock with sticker)
 flap_gap = 1.0;               // mm (gap between flaps on drum)
+flap_pin_width = 1.4;
 
+flap_hole_radius = (flap_pin_width + 0.8) / 2;
+flap_hole_separation = 1.2;  // additional spacing between hole edges
+flap_gap = (flap_hole_radius * 2 - flap_pin_width) + flap_hole_separation;
 // ============================================
 // DRUM
 // ============================================
 num_flaps = 50;
-drum_diameter = 127;          // mm (~5 inches, keeps similar to current)
-drum_circumference = PI * drum_diameter;  // ~399mm
+drum_diameter = 127;          // mm 
 flap_pitch_actual = drum_circumference / num_flaps;  // ~7.98mm per flap
-drum_width = flap_width + 4;  // 54mm (flap width + clearance)
+drum_width = material_thickness;  // 54mm (flap width + clearance)
 drum_inner_diameter = 115;    // mm (wall thickness for strength)
 
 // Drum spacers (connect left/right drum)

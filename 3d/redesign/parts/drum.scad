@@ -8,6 +8,19 @@ include <../modules/constants.scad>
 include <../vitamins/sensors.scad>
 include <../vitamins/gt2_pulley.scad>
 
+// Flap slots (reusable for both drums)
+// Creates holes around circumference for flap pins
+module drum_flap_slots() {
+    for (i = [0:num_flaps-1]) {
+        angle = i * 360 / num_flaps;
+        rotate([0, 0, angle])
+            translate([drum_diameter/2 - 3, 0, 0])
+                cyl(r=flap_hole_radius,
+                    h=drum_width + 1,
+                    anchor=CENTER);
+    }
+}
+
 // Left drum (connects to belt pulley)
 module drum_left() {
     color("lightblue") {
@@ -22,7 +35,9 @@ module drum_left() {
                 h=drum_width + 1,
                 anchor=CENTER);
 
-            // TODO: Add flap slots (50 positions around circumference)
+            // Flap slots (50 positions around circumference, 3mm from outer edge)
+            drum_flap_slots();
+
             // TODO: Add spoke/shaft connection points
             // TODO: Add spacer mounting holes
         }
@@ -46,7 +61,9 @@ module drum_right() {
                 h=drum_width + 1,
                 anchor=CENTER);
 
-            // TODO: Add flap slots
+            // Flap slots (50 positions around circumference, 3mm from outer edge)
+            drum_flap_slots();
+
             // TODO: Add spoke/shaft connection points
             // TODO: Add spacer mounting holes
         }
