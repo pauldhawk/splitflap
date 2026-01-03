@@ -21,14 +21,50 @@ module drum_flap_slots() {
     }
 }
 
+// Spoke/shaft connection (reusable for both drums)
+// Radial spokes connecting drum to central shaft
+module drum_spokes() {
+    shaft_diameter = 8;        // 8mm shaft (for bearing or M8 bolt)
+    num_spokes = 6;            // 6 radial spokes
+    spoke_width = 4;           // 4mm wide spokes
+    spoke_thickness = 3;       // 3mm thick (less than drum_width for clearance)
+
+    difference() {
+        union() {
+            // Radial spokes from center to inner wall
+            for (i = [0:num_spokes-1]) {
+                angle = i * 360 / num_spokes;
+                rotate([0, 0, angle])
+                    cuboid([drum_inner_diameter/2, spoke_width, spoke_thickness],
+                           anchor=LEFT);
+            }
+
+            // Central hub (reinforcement around shaft)
+            cyl(d=shaft_diameter + 6,
+                h=spoke_thickness,
+                anchor=CENTER);
+        }
+
+        // Central shaft hole
+        cyl(d=shaft_diameter,
+            h=spoke_thickness + 1,
+            anchor=CENTER);
+    }
+}
+
 // Left drum (connects to belt pulley)
 module drum_left() {
     color("lightblue") {
         difference() {
-            // Main drum body
-            cyl(d=drum_diameter,
-                h=drum_width,
-                anchor=CENTER);
+            union() {
+                // Main drum body
+                cyl(d=drum_diameter,
+                    h=drum_width,
+                    anchor=CENTER);
+
+                // Spoke/shaft connection
+                drum_spokes();
+            }
 
             // Hollow interior
             cyl(d=drum_inner_diameter,
@@ -38,7 +74,6 @@ module drum_left() {
             // Flap slots (50 positions around circumference, 3mm from outer edge)
             drum_flap_slots();
 
-            // TODO: Add spoke/shaft connection points
             // TODO: Add spacer mounting holes
         }
 
@@ -51,10 +86,15 @@ module drum_left() {
 module drum_right() {
     color("lightblue") {
         difference() {
-            // Main drum body (mirror of left)
-            cyl(d=drum_diameter,
-                h=drum_width,
-                anchor=CENTER);
+            union() {
+                // Main drum body (mirror of left)
+                cyl(d=drum_diameter,
+                    h=drum_width,
+                    anchor=CENTER);
+
+                // Spoke/shaft connection
+                drum_spokes();
+            }
 
             // Hollow interior
             cyl(d=drum_inner_diameter,
@@ -64,7 +104,6 @@ module drum_right() {
             // Flap slots (50 positions around circumference, 3mm from outer edge)
             drum_flap_slots();
 
-            // TODO: Add spoke/shaft connection points
             // TODO: Add spacer mounting holes
         }
 
@@ -110,5 +149,5 @@ module drum_assembly() {
 
 // Example/test render
 if ($preview) {
-    drum_assembly();
+    drum_left();
 }

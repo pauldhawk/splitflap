@@ -23,7 +23,7 @@ num_flaps = 50;
 drum_diameter = 127;          // mm 
 flap_pitch_actual = drum_circumference / num_flaps;  // ~7.98mm per flap
 drum_width = material_thickness;  // 54mm (flap width + clearance)
-drum_inner_diameter = 115;    // mm (wall thickness for strength)
+drum_inner_diameter = drum_diameter - 50;    // mm (wall thickness for strength)
 
 // Drum spacers (connect left/right drum)
 drum_spacer_count = 4;
