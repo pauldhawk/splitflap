@@ -1,0 +1,31 @@
+
+  Stays the Same (Safe to Solder Now):
+
+  ESP32          TMC2209
+  -----          -------
+  GPIO 25 -----> STEP
+  GPIO 26 -----> DIR
+  GPIO 27 -----> EN
+  GND ----------> GND
+
+  Plus all power connections (VM+, VDD, motor coils).
+
+  Gets Added Later:
+
+  Phase 2 (UART control):
+  GPIO 16 -----> TX (TMC2209 RX)
+  GPIO 17 -----> RX (TMC2209 TX)
+
+  Phase 3 (Hall sensor):
+  GPIO 34 -----> Hall sensor OUT
+  Hall VCC ----> 3.3V
+  Hall GND ----> GND
+
+  Recommendation:
+
+  Since you're prototyping, I'd suggest:
+  1. Temp solder Phase 1 connections now (STEP/DIR/EN/GND) - these won't change
+  2. Keep Phase 2 UART wires loose for now - easier to debug if UART communication has issues
+  3. Add Phase 3 hall sensor later when you get there
+
+  The core motor control signals (STEP/DIR/EN) are solid and won't need to be changed, so soldering those makes sense for a more reliable connection during testing.
