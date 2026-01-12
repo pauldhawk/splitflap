@@ -35,9 +35,11 @@
   GPIO 17 (13) -----> RX (TMC2209 TX)
 
   Phase 3 (Hall sensor):
-  GPIO 34 -----> Hall sensor OUT
-  Hall VCC ----> 3.3V
-  Hall GND ----> GND
+  Hall Sensor    ESP32
+  -----------    -----
+  VCC ---------> 3.3V
+  GND ---------> GND
+  OUT ---------> GPIO 2 (hall sensor input)
 
   Recommendation:
 

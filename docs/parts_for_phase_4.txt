@@ -1,0 +1,21 @@
+  Required Components
+
+  Shift Registers:
+  Output Control (Motor STEP/DIR signals):
+  - 2× 74HC595 8-bit shift register (~$0.50 each)
+    - Controls 12 bits (6 motors × 2 bits each)
+    - Daisy-chained together
+
+  Input Reading (Hall sensors):
+  - 1× 74HC165 8-bit shift register (~$0.60 each)
+    - Reads 6 sensor inputs
+
+  Other Components:
+  - 6× TMC2209 driver boards ($3-8 each, depending on source)
+  - 6× NEMA 17 motors (you already have tested with 1)
+  - 6× Hall effect sensors (you already have tested with 1)
+  - 1× 12-24V power supply (6-10A capacity)
+  - 3× 10kΩ resistor arrays (for pull-ups/pull-downs)
+  - Decoupling capacitors (0.1µF ceramic, ~10-20 of them)
+  - Breadboard or perfboard for prototyping
+  - Jumper wires
