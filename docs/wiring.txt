@@ -1,20 +1,38 @@
 
-  Stays the Same (Safe to Solder Now):
 
-  ESP32          TMC2209
-  -----          -------
-  GPIO 25 -----> STEP
-  GPIO 26 -----> DIR
-  GPIO 27 -----> EN
-  GND ----------> GND
 
-  Plus all power connections (VM+, VDD, motor coils).
+  | From      | To          | Notes                  |
+  |-----------|-------------|------------------------|
+  | 12V PSU + | TMC2209 VM+ | Red wire recommended   |
+  | 12V PSU - | TMC2209 GND | Black wire recommended |
 
-  Gets Added Later:
+  ESP32 to TMC2209 (Control Signals)
+
+  | ESP32 Pin | TMC2209 Pin | Wire Color | Function                 |
+  |-----------|-------------|------------|--------------------------|
+    GPIO 12     tx            brown         PDN
+    GPIO 13     RX              purple      UART
+  | GPIO 25   | STEP        | Yellow     | Step pulses              |
+  | GPIO 26   | DIR         | Green      | Direction control        |
+  | GPIO 27   | EN          | Blue       | Enable (active LOW)      |
+  | GND       | GND         | Black      | Common ground (CRITICAL) |
+
+  TMC2209 to Motor
+
+  | TMC2209Pin | Motor Connection | Notes            |Wire Colo
+  |------------|------------------|------------------|
+  | B2         | Coil 1 - Wire 1  | First coil pair  |. black
+  | B1         | Coil 1 - Wire 2  | First coil pair  | greeen 
+  | A1         | Coil 2 - Wire 1  | Second coil pair | red 
+  | A2         | Coil 2 - Wire 2  | Second coil pair | blue
+
+
+
+    Gets Added Later:
 
   Phase 2 (UART control):
-  GPIO 16 -----> TX (TMC2209 RX)
-  GPIO 17 -----> RX (TMC2209 TX)
+  GPIO 16 (12)-----> TX (TMC2209 RX)
+  GPIO 17 (13) -----> RX (TMC2209 TX)
 
   Phase 3 (Hall sensor):
   GPIO 34 -----> Hall sensor OUT
