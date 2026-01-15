@@ -1,7 +1,21 @@
 // ============================================
 // DRUM - Flap holder assembly
 // ============================================
-// Left drum (with pulley), right drum (with magnet), spacers
+// Modular 3D-printed drum design (Option 5 approach)
+//
+// DESIGN APPROACH:
+// - Two drum sides (left/right) print flat for best quality
+// - Connected by 4 spacer posts with M3 heat-set inserts
+// - 40mm spacing between drums (drum_spacer_height)
+// - 50 flap holes around circumference
+// - Radial spoke design for strength and reduced print time
+//
+// ASSEMBLY:
+// 1. Print left drum, right drum, and 4 spacers separately
+// 2. Install M3 heat-set inserts in spacer ends (8 total inserts)
+// 3. Attach spacers to one drum side with M3x10 screws
+// 4. Attach second drum side to complete assembly
+// 5. Mount pulley to left drum hub
 
 include <BOSL2/std.scad>
 include <../modules/constants.scad>
@@ -157,101 +171,64 @@ module drum_spacer() {
       );
 
       // Heat-set insert holes at both ends
-      // TODO: Add insert holes
+      // Top insert (for screw from left drum)
+      translate([0, 0, drum_spacer_height/2 - insert_hole_depth/2])
+        cyl(
+          d=insert_hole_dia,
+          h=insert_hole_depth,
+          anchor=CENTER
+        );
+
+      // Bottom insert (for screw from right drum)
+      translate([0, 0, -drum_spacer_height/2 + insert_hole_depth/2])
+        cyl(
+          d=insert_hole_dia,
+          h=insert_hole_depth,
+          anchor=CENTER
+        );
+
+      // Through hole for screw (smaller than insert diameter)
+      cyl(
+        d=screw_clearance_dia,
+        h=drum_spacer_height + 1,
+        anchor=CENTER
+      );
     }
   }
 }
 
 // Full drum assembly
+// Left and right drums connected by spacers with heat-set inserts
 module drum_assembly() {
   drum_z = drum_spacer_height / 2;
-  // Left drum with pulley
+  spacer_radius = drum_inner_diameter / 1.75; // Match drum_spacer_holes() position
+
+  // Left drum with pulley (top)
   translate([0, 0, drum_z])
     drum_left();
 
-  // Right drum with magnet
+  // Right drum with magnet (bottom)
   translate([0, 0, -drum_z])
     drum_right();
 
-  // Spacers (4 positions around drum)
+  // Spacers (positioned to align with screw holes in drums)
   for (i = [0:drum_spacer_count - 1]) {
     angle = i * 360 / drum_spacer_count;
     rotate([0, 0, angle])
-      translate([drum_diameter / 2 - 10, 0, 0])
-        rotate([0, 0, 0])
-          drum_spacer();
+      translate([spacer_radius, 0, 0])
+        drum_spacer();
   }
 }
 
-module spoked_wheel(
+// ============================================
+// PREVIEW / TEST RENDER
+// ============================================
+// Uncomment the module you want to preview:
 
-) {
-  wheel_r=40;       // overall radius
-  th=6;               // thickness
-  hub_hole_d=10;      // center hole diameter
+// Full assembly (default)
+drum_assembly();
 
-  // Rim hole pattern
-  rim_hole_n=48;
-  rim_hole_d=2.2;
-  rim_hole_r=36;     // radius where the small holes sit (near the edge)
-
-  // Spokes & windows
-  spoke_w=30;         // width of each spoke arm (the solid cross thickness)
-  win_inner_r=14;
-  win_outer_r=29;
-
-  // Optional 4 bolt holes on the cross
-  bolt_hole_n=4;
-  bolt_hole_d=4;
-  bolt_hole_r=22;
-  difference() {
-    // 1) Solid disk
-    cyl(r=wheel_r, h=th, anchor=CENTER);
-
-    // 2) Center hub hole
-    cyl(d=hub_hole_d, h=th+1, anchor=CENTER);
-
-    // 3) Big quadrant windows (between spokes)
-    // Make an annulus, then intersect it with a quadrant mask, repeat 4x rotated.
-    zrot_copies(n=4) {
-      rotate([0,0,45])  // windows sit between the + spokes
-      intersection() {
-        // annulus region to remove
-        difference() {
-          cyl(r=win_outer_r, h=th+2, anchor=CENTER);
-          cyl(r=win_inner_r, h=th+3, anchor=CENTER);
-        }
-        // quadrant mask (a big square in +X,+Y)
-        right(win_outer_r/2)
-          back(win_outer_r/2)
-            cuboid([win_outer_r, win_outer_r, th+4], anchor=CENTER);
-      }
-      }
-    }
-
-    // 4) Carve the cross "gap" control:
-    // If you want *exactly* a plus-shaped spoke, don't cut here.
-    // If your windows are too round/too big, adjust win_inner_r/win_outer_r/spoke_w.
-    //
-    // This extra cut "trims" windows so spokes remain thick and crisp:
-    // zrot_copies(n=2) { // X and Y axes
-    //   cuboid([2*wheel_r+2, 2*wheel_r+2, th+4], anchor=CENTER); // placeholder
-    // }
-
-    // (Instead of the placeholder above, we do a real trim:)
-    // Cut everything EXCEPT a + spoke shape by removing four big rectangles,
-    // leaving a plus. Easier: subtract two thin rectangles? We want keep spokes,
-    // so we remove the corners outside the spokes by cutting 4 corner blocks.
-    for (a=[45,135,225,315]) {
-      rotate([0,0,a])
-        right(wheel_r/2)
-        cuboid([wheel_r - 5, wheel_r-spoke_w, th+4], anchor=CENTER);
-        //   cuboid([wheel_r, wheel_r-spoke_w, th+4], anchor=CENTER);
-    }
-
-//   }
-}
-// Example/test render
-if ($preview) {
-spoked_wheel();
-}
+// Individual parts for printing:
+// drum_left();
+// drum_right();
+// drum_spacer();
